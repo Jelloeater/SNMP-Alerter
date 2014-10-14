@@ -1,0 +1,237 @@
+PYSNMP-COMMUNITY-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY,
+    OBJECT-TYPE
+        FROM SNMPv2-SMI
+    StorageType
+        FROM SNMPv2-TC
+    SnmpAdminString,
+    SnmpEngineID
+        FROM SNMP-FRAMEWORK-MIB
+    SnmpTagValue
+        FROM SNMP-TARGET-MIB
+    pysnmpModuleIDs
+        FROM PYSNMP-MIB;
+
+pysnmpCommunityMIB MODULE-IDENTITY
+    LAST-UPDATED "201112250000Z"          -- 25 Dec 2011, midnight
+    ORGANIZATION "The PySNMP project"
+    CONTACT-INFO "E-mail:     ilya@glas.net
+                  Subscribe:  pysnmp-users-request@lists.sourceforge.net"
+        DESCRIPTION
+            "This MIB module defines additional indices to facilitate
+             fast SNMP-COMMUNITY-MIB objects retrieval."
+        REVISION "201112250000Z"          -- 25 Dec 2011, midnight
+        DESCRIPTION "The Initial Revision"
+    ::= { pysnmpModuleIDs 2 }
+
+-- Administrative assignments ****************************************
+
+pysnmpCommunityMIBObjects     OBJECT IDENTIFIER ::= { pysnmpCommunityMIB 1 }
+pysnmpCommunityMIBConformance OBJECT IDENTIFIER ::= { pysnmpCommunityMIB 2 }
+
+--
+-- The pysnmpOutboundCommunityTable contains a database of SNMPv1/v2c security
+-- names indexed by SNMP community names.
+-- This table may be consulted by pysnmp security module whilst processing  
+-- SNMPv1/v2c message.
+--
+
+pysnmpOutboundCommunityTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF PysnmpOutboundCommunityEntry
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "Table of SNMP-COMMUNITY-MIB's snmpSecurityName's indexed by
+         snmpCommunityName"
+    ::= { pysnmpCommunityMIBObjects 1 }
+
+pysnmpOutboundCommunityEntry OBJECT-TYPE
+    SYNTAX       PysnmpOutboundCommunityEntry
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "Information about a particular Community-to-Security entry."
+    INDEX       { IMPLIED pysnmpOutboundCommunityName, pysnmpOutboundCommunityContextEngineID, pysnmpOutboundCommunityContextName, pysnmpOutboundCommunityTransportTag }
+    ::= { pysnmpOutboundCommunityTable 1 }
+
+PysnmpOutboundCommunityEntry ::= SEQUENCE {
+    pysnmpOutboundCommunityName                OCTET STRING,
+    pysnmpOutboundCommunitySecurityName        SnmpAdminString,
+    pysnmpOutboundCommunityContextEngineID     SnmpEngineID,
+    pysnmpOutboundCommunityContextName         SnmpAdminString,
+    pysnmpOutboundCommunityTransportTag        SnmpTagValue,
+    pysnmpOutboundCommunityRowID               OBJECT IDENTIFIER,
+    pysnmpOutboundCommunityStorageType         StorageType
+}
+
+pysnmpOutboundCommunityName OBJECT-TYPE
+    SYNTAX       OCTET STRING
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "A copy of SNMP-COMMUNITY-MIB::snmpCommunityName used in INDEX" 
+    ::= { pysnmpOutboundCommunityEntry 1 }
+
+pysnmpOutboundCommunitySecurityName OBJECT-TYPE
+    SYNTAX       SnmpAdminString
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "A copy of SNMP-COMMUNITY-MIB::snmpCommunitySecurityName used in INDEX" 
+    ::= { pysnmpOutboundCommunityEntry 2 }
+
+pysnmpOutboundCommunityContextEngineID OBJECT-TYPE
+    SYNTAX       SnmpEngineID
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "A copy of SNMP-COMMUNITY-MIB::snmpCommunityContextEngineID
+         used in INDEX" 
+    ::= { pysnmpOutboundCommunityEntry 3 }
+
+pysnmpOutboundCommunityContextName OBJECT-TYPE
+    SYNTAX       SnmpAdminString
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "A copy of SNMP-COMMUNITY-MIB::snmpCommunityContextName used in INDEX" 
+    ::= { pysnmpOutboundCommunityEntry 4 }
+
+pysnmpOutboundCommunityTransportTag OBJECT-TYPE
+    SYNTAX       SnmpTagValue
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "A copy of SNMP-COMMUNITY-MIB::snmpCommunityTransportTag used in INDEX" 
+    ::= { pysnmpOutboundCommunityEntry 5 }
+
+pysnmpOutboundCommunityRowID OBJECT-TYPE
+    SYNTAX       OBJECT IDENTIFIER
+    MAX-ACCESS   read-write
+    STATUS       current
+    DESCRIPTION
+        "SNMP-COMMUNITY-MIB::snmpCommunityTable object instance ID" 
+    ::= { pysnmpOutboundCommunityEntry 6 }
+
+pysnmpOutboundCommunityStorageType OBJECT-TYPE
+    SYNTAX       StorageType
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+        "The storage type for this conceptual row in the
+         snmpCommunityTable.  Conceptual rows having the value
+         'permanent' need not allow write-access to any
+         columnar object in the row."
+    ::= { pysnmpOutboundCommunityEntry 7 }
+
+--
+-- The pysnmpCommunityInboundTable contains a database of SNMPv1/v2c security
+-- names indexed by SNMP community names.
+-- This table may be consulted by pysnmp security module whilst processing  
+-- SNMPv1/v2c message.
+--
+
+pysnmpInboundCommunityTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF PysnmpInboundCommunityEntry
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "Table of SNMP-COMMUNITY-MIB's snmpSecurityName's indexed by
+         snmpCommunityName"
+    ::= { pysnmpCommunityMIBObjects 2 }
+
+pysnmpInboundCommunityEntry OBJECT-TYPE
+    SYNTAX       PysnmpInboundCommunityEntry
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "Information about a particular Community-to-Security entry."
+    INDEX       { IMPLIED pysnmpInboundCommunityName, pysnmpInboundCommunityTransportTag }
+    ::= { pysnmpInboundCommunityTable 1 }
+
+PysnmpInboundCommunityEntry ::= SEQUENCE {
+    pysnmpInboundCommunityName                OCTET STRING,
+    pysnmpInboundCommunitySecurityName        SnmpAdminString,
+    pysnmpInboundCommunityContextEngineID     SnmpEngineID,
+    pysnmpInboundCommunityContextName         SnmpAdminString,
+    pysnmpInboundCommunityTransportTag        SnmpTagValue,
+    pysnmpInboundCommunityRowID               OBJECT IDENTIFIER,
+    pysnmpInboundCommunityStorageType         StorageType
+}
+
+pysnmpInboundCommunityName OBJECT-TYPE
+    SYNTAX       OCTET STRING
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "A copy of SNMP-COMMUNITY-MIB::snmpCommunityName used in INDEX" 
+    ::= { pysnmpInboundCommunityEntry 1 }
+
+pysnmpInboundCommunitySecurityName OBJECT-TYPE
+    SYNTAX       SnmpAdminString
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "A copy of SNMP-COMMUNITY-MIB::snmpCommunitySecurityName used in INDEX" 
+    ::= { pysnmpInboundCommunityEntry 2 }
+
+pysnmpInboundCommunityContextEngineID OBJECT-TYPE
+    SYNTAX       SnmpEngineID
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "A copy of SNMP-COMMUNITY-MIB::snmpCommunityContextEngineID
+         used in INDEX" 
+    ::= { pysnmpInboundCommunityEntry 3 }
+
+pysnmpInboundCommunityContextName OBJECT-TYPE
+    SYNTAX       SnmpAdminString
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "A copy of SNMP-COMMUNITY-MIB::snmpCommunityContextName used in INDEX" 
+    ::= { pysnmpInboundCommunityEntry 4 }
+
+pysnmpInboundCommunityTransportTag OBJECT-TYPE
+    SYNTAX       SnmpTagValue
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "A copy of SNMP-COMMUNITY-MIB::snmpCommunityTransportTag used in INDEX" 
+    ::= { pysnmpInboundCommunityEntry 5 }
+
+pysnmpInboundCommunityRowID OBJECT-TYPE
+    SYNTAX       OBJECT IDENTIFIER
+    MAX-ACCESS   read-write
+    STATUS       current
+    DESCRIPTION
+        "SNMP-COMMUNITY-MIB::snmpCommunityTable object instance ID" 
+    ::= { pysnmpInboundCommunityEntry 6 }
+
+pysnmpInboundCommunityStorageType OBJECT-TYPE
+    SYNTAX       StorageType
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+        "The storage type for this conceptual row in the
+         snmpCommunityTable.  Conceptual rows having the value
+         'permanent' need not allow write-access to any
+         columnar object in the row."
+    ::= { pysnmpInboundCommunityEntry 7 }
+
+
+--
+-- The pysnmpUsmKeysTable contains a database of COMMUNITY users' localized
+-- keys.
+--
+
+-- Conformance Information *******************************************
+
+pysnmpCommunityMIBCompliances OBJECT IDENTIFIER
+                            ::= { pysnmpCommunityMIBConformance 1 }
+pysnmpCommunityMIBGroups      OBJECT IDENTIFIER
+                            ::= { pysnmpCommunityMIBConformance 2 }
+
+END

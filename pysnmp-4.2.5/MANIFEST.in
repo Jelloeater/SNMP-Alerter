@@ -1,0 +1,4 @@
+include CHANGES README LICENSE THANKS
+recursive-include examples *.py
+recursive-include tools *
+recursive-include docs *.txt *.html *.gif *.conf

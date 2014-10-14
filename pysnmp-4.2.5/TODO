@@ -1,0 +1,51 @@
+Sparse notes on major existing problems/plans
+
+* SMI issues remained include:
+
+  1) multiple OID registration should be posible for
+     customizing Managed Objects classes
+  2) in MIBVIEW object model: MIB module name, MIB object 
+     name and object instance should be clearly separated.
+     Dedicated, simple API for table cells mangling should be 
+     provided.
+
+* Walking over VACM shadowed OIDs is painfully slow
+
+* Notification filtering (RFC3413) not implemented.
+
+* MsgAndPduDispatcher should use TransportDispatcher jobs interface
+  to handle SNMPv3 handshake
+
+* Implement 'oneliner' API for v1arch, possibly compatible with v3arch API
+
+* Implement prettyIn value format parser at TC
+
+* Disallow SNMP access to USM objects
+
+* Maybe MibInstrumentationController should be async what
+  implies callback function interface.
+
+* Re-work ACL to get rid of linear search there
+
+* Implement partial context name match at isAccessAllowed()
+
+* Sort out whether pyasn1 objects should probably have either clone() or 
+  subtype() methods.
+
+* Review PDU components coercion code at proxy/rfc2576
+
+* TextualConvention subclassing order now depends upon DisplayHint 
+  clause presense in MIB definition (for useful prettyIn/Out()). Maybe 
+  this should be re-worked.
+
+* exclude SNMP-COMMUNITY-MIB from view for better security
+
+* re-design something to get rid of an ugly hack coercing MIB values into
+  SNMP message header as it has incompatible constraints set
+
+* Implement OID prefix to MIB module mapping then dynamic MIB modules
+  loading on OID to MIB symbol resolution
+
+* Implement TCP transport support
+
+* Rework UNIX sockets transport to make it STREAM-type.

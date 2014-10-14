@@ -1,0 +1,117 @@
+PYSNMP-PROXY-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY,
+    OBJECT-TYPE
+        FROM SNMPv2-SMI
+    SnmpAdminString
+        FROM SNMP-FRAMEWORK-MIB
+    TDomain,
+    TAddress,
+    RowStatus
+        FROM SNMPv2-TC
+    pysnmpModuleIDs
+        FROM PYSNMP-MIB;
+
+pysnmpProxyMIB MODULE-IDENTITY
+    LAST-UPDATED "201204040000Z"          -- 04 April 2012, midnight
+    ORGANIZATION "The PySNMP project"
+    CONTACT-INFO "E-mail:     ilya@glas.net
+                  Subscribe:  pysnmp-users-request@lists.sourceforge.net"
+        DESCRIPTION
+            "This MIB module defines implementation specific objects
+	     that facilitate LCD lookup by RFC2576 procedures at PySNMP."
+        REVISION "201204040000Z"          -- 04 April 2012, midnight
+        DESCRIPTION "The Initial Revision"
+    ::= { pysnmpModuleIDs 5 }
+
+-- Administrative assignments ****************************************
+
+pysnmpProxyMIBObjects     OBJECT IDENTIFIER ::= { pysnmpProxyMIB 1 }
+pysnmpProxyMIBConformance OBJECT IDENTIFIER ::= { pysnmpProxyMIB 2 }
+
+--
+-- The pysnmpProxySecurityNameTable contains a database of USM users passphrases
+-- used for key localization. This table may be consulted during SNMP engine-ID
+-- autodiscovery procedure.
+--
+
+pysnmpProxySecurityNameTable OBJECT-TYPE
+    SYNTAX       SEQUENCE OF PysnmpProxySecurityNameEntry
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "The table of USM users passphrases configured in the SNMP 
+         engine's Local Configuration Datastore (LCD)."
+    ::= { pysnmpProxyMIBObjects 1 }
+
+pysnmpProxySecurityNameEntry OBJECT-TYPE
+    SYNTAX       PysnmpProxySecurityNameEntry
+    MAX-ACCESS   not-accessible
+    STATUS       current
+    DESCRIPTION
+        "Information about a particular USM user credentials."
+    INDEX       { pysnmpProxyCommunityName, pysnmpProxyTransportDomain, pysnmpProxyTransportAddress }
+    ::= { pysnmpProxySecurityNameTable 1 }
+
+PysnmpProxySecurityNameEntry ::= SEQUENCE {
+    pysnmpProxyCommunityName        OCTET STRING,
+    pysnmpProxyTransportDomain      TDomain,
+    pysnmpProxyTransportAddress     TAddress,
+    pysnmpProxySecurityName         SnmpAdminString,
+    pysnmpProxySecurityNameStatus   RowStatus
+}
+
+pysnmpProxyCommunityName OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE(0..256))
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The username string for which a row in this table
+         represents a configuration."
+    ::= { pysnmpProxySecurityNameEntry 1 }
+
+pysnmpProxyTransportDomain OBJECT-TYPE
+    SYNTAX      TDomain
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The username string for which a row in this table
+         represents a configuration."
+    ::= { pysnmpProxySecurityNameEntry 2 }
+
+pysnmpProxyTransportAddress OBJECT-TYPE
+    SYNTAX      TAddress
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The username string for which a row in this table
+         represents a configuration."
+    ::= { pysnmpProxySecurityNameEntry 3 }
+
+pysnmpProxySecurityName OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The username string for which a row in this table
+         represents a configuration."
+    ::= { pysnmpProxySecurityNameEntry 4 }
+
+pysnmpProxySecurityNameStatus OBJECT-TYPE
+    SYNTAX       RowStatus
+    MAX-ACCESS   read-create
+    STATUS       current
+    DESCRIPTION
+        "Table status"
+    ::= { pysnmpProxySecurityNameEntry 5 }
+
+
+-- Conformance Information *******************************************
+
+pysnmpProxyMIBCompliances OBJECT IDENTIFIER
+                            ::= { pysnmpProxyMIBConformance 1 }
+pysnmpProxyMIBGroups      OBJECT IDENTIFIER
+                            ::= { pysnmpProxyMIBConformance 2 }
+
+END
