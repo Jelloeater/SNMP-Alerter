@@ -45,9 +45,7 @@ def get_v2_oid():
                     print(errorStatus.prettyPrint())
                 else:
                     for oid, val in pMod.apiPDU.getVarBinds(rspPDU):
-
-                        OID_Values.append([oid,val])
-                        print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
+                        OID_Values.append([oid.prettyPrint(),val.prettyPrint()])
                 transport_dispatcher.jobFinished(1)
 
         return wholeMsg
@@ -69,5 +67,5 @@ def get_v2_oid():
 
 
 print(get_v2_oid())
-
+print(OID_Values)
 print("EOP")
