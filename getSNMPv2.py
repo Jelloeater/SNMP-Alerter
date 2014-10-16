@@ -12,6 +12,8 @@ from time import time
 
 
 def get_v2_oid():
+    global OID_Values
+    OID_Values = []
 
     # Protocol version to use
     # pMod = api.protoModules[api.protoVersion1]
@@ -31,6 +33,7 @@ def get_v2_oid():
 
     def cbRecvFun(transport_dispatcher, transportDomain, transportAddress,
                   wholeMsg, reqPDU=reqPDU):
+
         while wholeMsg:
             rspMsg, wholeMsg = decoder.decode(wholeMsg, asn1Spec=pMod.Message())
             rspPDU = pMod.apiMessage.getPDU(rspMsg)
@@ -41,8 +44,8 @@ def get_v2_oid():
                 if errorStatus:
                     print(errorStatus.prettyPrint())
                 else:
-                    OID_Values = []
                     for oid, val in pMod.apiPDU.getVarBinds(rspPDU):
+
                         OID_Values.append([oid,val])
                         print('%s = %s' % (oid.prettyPrint(), val.prettyPrint()))
                 transport_dispatcher.jobFinished(1)
@@ -63,6 +66,8 @@ def get_v2_oid():
     # Dispatcher will finish as job#1 counter reaches zero
     transportDispatcher.runDispatcher()
     transportDispatcher.closeDispatcher()
-    print("EOP")
 
-get_v2_oid()
+
+print(get_v2_oid())
+
+print("EOP")
