@@ -8,6 +8,7 @@ import sys
 import logging
 import argparse
 from time import sleep
+import email_controller
 
 __author__ = "Jesse S"
 __license__ = "GNU GPL v2.0"
@@ -29,13 +30,25 @@ class settingsVars:
     # And the number of clients is
     # 1.3.6.1.4.1.9.9.618.1.8.12.0
 
-    server_to_monitor = ['10.0.21.10']
+    servers_to_monitor = ['10.0.21.10']
     OIDs_to_monitor = [['1.3.6.1.4.1.9.9.618.1.8.4.0',27],['1.3.6.1.4.1.9.9.618.1.8.12.0',400]]
     community = 'admin'
     port = 161
     send_email_to = 'jschoepfer@connectedtechnology.com'
-    last_sent_email = ''
 
+class events:
+    last_sent_email = ''
+    last_failure = ''
+
+    @staticmethod
+    def last_email_sent():
+        #TODO Needs to compute when the last e-mail was sent
+        return 1
+
+    @staticmethod
+    def last_failure():
+        #TODO Needs to return the last time a service has failed, might be tricky
+        return 2
 
 def main():
     """ Take arguments and direct program """
@@ -117,72 +130,34 @@ class modes(object):  # Uses new style classes
         print("Press Ctrl-C to quit")
 
         while True:
-            self.server_list = db_helpers.monitor_list.get_server_list()
+            self.server_list = settingsVars.servers_to_monitor
             # Gets server list on each refresh, in-case of updates
             logging.debug(self.server_list)
             # Send each row of monitor_list to logic gate
             for i in self.server_list:
-                server_logger(i, sleep_delay=self.sleep_delay, alert_timeout=self.alert_timeout,
-                              host_timeout=self.host_timeout).check_server_status()
+                pass
+                #TODO Need to check if OID value is okay
 
-            last_email = db_helpers.email_log.email_sent_x_minutes_ago()
-            last_fail = db_helpers.monitor_list.get_time_from_last_failure()
+                # server_logger(i, sleep_delay=self.sleep_delay, alert_timeout=self.alert_timeout,
+                #               host_timeout=self.host_timeout).check_server_status()
+
+            last_email = events.last_email_sent()
+            last_fail = events.last_failure()
             logging.debug(
                 'Last e-mail sent: ' + str(last_email) + '  Timeout: ' + str(self.alert_timeout) +
                 '  Last Failure: ' + str(last_fail))
 
-            if db_helpers.email_log.email_sent_x_minutes_ago() > self.alert_timeout \
-                    > db_helpers.monitor_list.get_time_from_last_failure():
+            if events.last_email_sent() > self.alert_timeout > events.last_failure():
                 # Are we spamming alerts?
                 # Check if any servers have gone down in the the last X minutes
                 # If any have gone down, send report
-                if email_controller.send_gmail().test_login():
+                if email_controller.test_login():
                     logging.info('SENDING REPORT')
-                    email_alerts.email_actions.generate_report()
+                    email_controller.generate_report()
             else:
                 logging.info('E-mail timeout still cooling off')
 
             self.sleep()
-
-
-class server_logger(modes):
-    """ self.variable same as monitor_list columns"""
-
-    def __init__(self, monitor_row, sleep_delay, alert_timeout, host_timeout):
-        super(server_logger, self).__init__(sleep_delay, alert_timeout, host_timeout)
-        self.sl_host = monitor_row[1]
-        self.sl_port = monitor_row[2]
-        self.sl_service_type = monitor_row[3]
-        self.sl_note = monitor_row[4]
-
-    def check_server_status(self):
-        """ Picks either TCP, Ping host, or check web, depending on args """
-
-        up_down_flag = False
-
-        if self.sl_service_type == 'url':
-            logging.debug("Checking URL: " + str(self.sl_host))
-            up_down_flag = network.MonitorHTTP(url=self.sl_host, timeout=self.host_timeout).run_test()
-
-        if self.sl_service_type == 'host':
-            logging.debug("Checking host: " + str(self.sl_host))
-            up_down_flag = network.MonitorHost(host=self.sl_host, timeout=self.host_timeout).run_test()
-
-        if self.sl_service_type == 'tcp':
-            logging.debug("Checking TCP Service: " + str(self.sl_host) + ' port: ' + str(self.sl_port))
-            up_down_flag = network.MonitorTCP(host=self.sl_host, port=str(self.sl_port),
-                                              timeout=self.host_timeout).run_test()
-
-        if up_down_flag is False:
-            self.server_down_actions()
-        else:
-            logging.info(self.sl_host + ' -  ' + str(self.sl_port) + ' is UP')
-
-    def server_down_actions(self):
-        """ Core logic for driving program """
-        db_helpers.monitor_list.log_service_down(self)
-
-    # TODO FEATURE: Add special alert for critical systems (need to add column to monitor_list)
 
 
 if __name__ == "__main__":
